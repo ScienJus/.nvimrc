@@ -22,6 +22,9 @@ Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 
 Plug 'Shougo/defx.nvim', { 'do': ':UpdateRemotePlugins' }
 
+" try clang
+Plug 'Shougo/deoplete-clangx'
+
 call plug#end()
 
 " build cquery: https://github.com/cquery-project/cquery/wiki/Building-cquery
@@ -29,6 +32,11 @@ call plug#end()
 let g:LanguageClient_serverCommands = {
     \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
     \ 'c': ['cquery', '--log-file=/tmp/cq.log'],
+    \ }
+
+let g:LanguageClient_rootMarkers = {
+    \ 'cpp': ['.git', 'compile_commands.json', 'build'],
+    \ 'c': ['.git', 'compile_commands.json', 'build'],
     \ }
 
 let g:LanguageClient_loadSettings = 1
@@ -53,11 +61,11 @@ call deoplete#custom#source('_',
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
 call deoplete#custom#option('sources', {
-    \ 'cpp':['LanguageClient'],
-    \ 'c': ['LanguageClient'],
-    \ 'vim': ['vim'],
-    \ 'zsh': ['zsh']
-    \})
+   \ 'cpp':['LanguageClient', 'clangx'],
+   \ 'c': ['LanguageClient', 'clangx'],
+   \ 'vim': ['vim'],
+   \ 'zsh': ['zsh']
+   \})
 
 let g:deoplete#ignore_sources = {}
 let g:deoplete#ignore_sources._ = ['buffer', 'around']
@@ -100,3 +108,13 @@ function! s:defx_toggle_tree() abort
     endif
     return defx#do_action('multi', ['drop'])
 endfunction
+
+" clang binary path
+call deoplete#custom#var('clangx', 'clang_binary', '/usr/bin/clang')
+
+" clangx options
+call deoplete#custom#var('clangx', 'default_c_options', '')
+call deoplete#custom#var('clangx', 'default_cpp_options', '')
+
+autocmd FileType cpp setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType c setlocal expandtab shiftwidth=2 softtabstop=2
